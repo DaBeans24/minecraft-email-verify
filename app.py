@@ -1,10 +1,9 @@
-from config import BASE_URL
 from flask import Flask, request, render_template
 import mysql.connector
 import smtplib
 import uuid
 from email.message import EmailMessage
-from config import DATABASE_CONFIG, EMAIL_CONFIG
+from config import DATABASE_CONFIG, EMAIL_CONFIG, BASE_URL
 
 app = Flask(__name__)
 
@@ -14,9 +13,9 @@ def get_db():
 
 # Email sender using Gmail SMTP
 def send_verification_email(email, token):
-# Later in your send_verification_email function:
-link = f"{BASE_URL}/verify?token={token}"
-  msg = EmailMessage()
+    link = f"{BASE_URL}/verify?token={token}"
+
+    msg = EmailMessage()
     msg["Subject"] = "Verify Your Minecraft Account"
     msg["From"] = EMAIL_CONFIG["email"]
     msg["To"] = email
@@ -60,5 +59,17 @@ def verify():
     else:
         return "❌ Invalid or expired verification token."
 
+# Optional: Test your DB connection on Render
+@app.route("/test_db")
+def test_db():
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT 1")
+        return "✅ Connected to the database!"
+    except Exception as e:
+        return f"❌ Database connection failed: {e}"
+
 if __name__ == "__main__":
     app.run(debug=True)
+
