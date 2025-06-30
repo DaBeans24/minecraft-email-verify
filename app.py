@@ -29,18 +29,26 @@ def send_verification_email(email, token):
 # This sends emails to all pending users
 @app.route("/send_all_pending")
 def send_pending():
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT uuid, email FROM players WHERE status = 'pending'")
-    results = cursor.fetchall()
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT uuid, email FROM players WHERE status = 'pending'")
+        results = cursor.fetchall()
 
-    for uuid_val, email in results:
-        token = str(uuid.uuid4())
-        cursor.execute("UPDATE players SET token = %s WHERE uuid = %s", (token, uuid_val))
-        send_verification_email(email, token)
+        if not results:
+            return "ℹ️ No pending users found."
 
-    db.commit()
-    return "✅ Emails sent to all pending users!"
+        for uuid_val, email in results:
+            print(f"📨 Sending to {email}...")
+            token = str(uuid.uuid4())
+            cursor.execute("UPDATE players SET token = %s WHERE uuid = %s", (token, uuid_val))
+            send_verification_email(email, token)
+
+        db.commit()
+        return "✅ Emails sent to all pending users!"
+
+    except Exception as e:
+        return f"❌ Error: {e}"
 
 # This route verifies users when they click the email link
 @app.route("/verify")
