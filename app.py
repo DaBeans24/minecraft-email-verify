@@ -1,9 +1,10 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
 import mysql.connector
 import smtplib
 import uuid
 from email.message import EmailMessage
 from config import DATABASE_CONFIG, EMAIL_CONFIG, BASE_URL
+return redirect(url_for("success_page"))
 
 app = Flask(__name__)
 
@@ -42,16 +43,34 @@ def get_db():
     return mysql.connector.connect(**DATABASE_CONFIG)
 
 # Email sender using Gmail SMTP
-def send_verification_email(email, token):
+def send_verification_email(email, token, username):
     link = f"{BASE_URL}/verify?token={token}"
+    denied_link = f"{BASE_URL}/deny?token={token}"
     print(f"[DEBUG] Sending email to: {email}")
     print(f"[DEBUG] Verification link: {link}")
-    
+    print(f"[DEBUG] Denied link: {denied_link}")
+
     msg = EmailMessage()
     msg["Subject"] = "Verify Your Minecraft Account"
     msg["From"] = EMAIL_CONFIG["email"]
     msg["To"] = email
-    msg.set_content(f"Hi there!\n\nClick this link to verify your account:\n{link}\n\nThanks!")
+    msg.set_content(
+        f"""Hello {email},
+
+We received a request to link the Minecraft account '{username}' to this email address ({email}).
+
+Please click the link below to confirm ownership and grant game access:
+{link}
+
+Or click here to DENY the request:
+{denied_link}
+
+Note: Registration may take up to a few minutes to reflect in game.
+
+Thank you,  
+ERRSA's Minecraft Staff
+"""
+    )
 
     try:
         with smtplib.SMTP(EMAIL_CONFIG["smtp_server"], EMAIL_CONFIG["smtp_port"]) as server:
@@ -92,26 +111,30 @@ def send_pending():
     except Exception as e:
         return f"❌ Error: {e}"
 
-
-# This route verifies users when they click the email link
-@app.route("/verify")
-def verify():
+@app.route("/deny")
+def deny():
     token = request.args.get("token")
 
     db = get_db()
     cursor = db.cursor()
+
+    # Check if the token exists
     cursor.execute("SELECT minecraft_username FROM player_registrations WHERE token = %s", (token,))
     result = cursor.fetchone()
 
     if result:
         cursor.execute(
-            "UPDATE player_registrations SET status = 'APPROVED' WHERE token = %s",
+            "UPDATE player_registrations SET status = 'DENIED' WHERE token = %s",
             (token,)
         )
         db.commit()
-        return render_template("success.html")
+        return """
+        <h1>❌ Request Denied</h1>
+        <p>This email will not be linked to the Minecraft account.</p>
+        <p>If this was a mistake, please re-register by exiting and re-entering the server.</p>
+        """
     else:
-        return "❌ Invalid or expired verification token."
+        return "<h1>⚠️ Invalid or expired token.</h1>"
 
 # Optional: Test your DB connection on Render
 @app.route("/test_db")
@@ -123,6 +146,10 @@ def test_db():
         return "✅ Connected to the database!"
     except Exception as e:
         return f"❌ Database connection failed: {e}"
+
+@app.route("/success")
+def success_page():
+    return render_template("success.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
