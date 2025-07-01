@@ -7,6 +7,24 @@ from config import DATABASE_CONFIG, EMAIL_CONFIG, BASE_URL
 
 app = Flask(__name__)
 
+@app.route("/register", methods=["POST"])
+def register():
+    username = request.form["username"]
+    email = request.form["email"]
+    token = str(uuid.uuid4())
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "INSERT INTO player_registrations (minecraft_username, erau_email, token, status) VALUES (%s, %s, %s, 'PENDING')",
+        (username, email, token)
+    )
+    db.commit()
+
+    send_verification_email(email, token)
+
+    return "✅ Registered and verification email sent!"
+
 # Connect to your Apex-hosted MySQL database
 def get_db():
     return mysql.connector.connect(**DATABASE_CONFIG)
@@ -25,6 +43,7 @@ def send_verification_email(email, token):
         server.starttls()
         server.login(EMAIL_CONFIG["email"], EMAIL_CONFIG["password"])
         server.send_message(msg)
+
 
 # This sends emails to all pending users
 @app.route("/send_all_pending")
