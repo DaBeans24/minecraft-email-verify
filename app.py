@@ -131,10 +131,11 @@ def deny():
         return """
         <h1>❌ Request Denied</h1>
         <p>This email will not be linked to the Minecraft account.</p>
-        <p>If this was a mistake, please re-register by exiting and re-entering the server.</p>
+        <p>If this was a mistake, please re-register or contact the ERRSA Minecraft Staff.</p>
         """
     else:
         return "<h1>⚠️ Invalid or expired token.</h1>"
+
 
 # Optional: Test your DB connection on Render
 @app.route("/test_db")
