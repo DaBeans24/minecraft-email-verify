@@ -32,7 +32,7 @@ def send_pending():
     try:
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("SELECT minecraft_username, erau_email FROM player_regristration WHERE status = 'PENDING'")
+        cursor.execute("SELECT minecraft_username, erau_email FROM player_regristrations WHERE status = 'PENDING'")
         results = cursor.fetchall()
 
         if not results:
@@ -42,7 +42,7 @@ def send_pending():
             print(f"📨 Sending to {email} for {username}")
             token = str(uuid.uuid4())
             cursor.execute(
-                "UPDATE player_regristration SET token = %s WHERE minecraft_username = %s",
+                "UPDATE player_regristrations SET token = %s WHERE minecraft_username = %s",
                 (token, username)
             )
             send_verification_email(email, token)
@@ -61,12 +61,12 @@ def verify():
 
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("SELECT minecraft_username FROM player_regristration WHERE token = %s", (token,))
+    cursor.execute("SELECT minecraft_username FROM player_regristrations WHERE token = %s", (token,))
     result = cursor.fetchone()
 
     if result:
         cursor.execute(
-            "UPDATE player_regristration SET status = 'APPROVED' WHERE token = %s",
+            "UPDATE player_regristrations SET status = 'APPROVED' WHERE token = %s",
             (token,)
         )
         db.commit()
