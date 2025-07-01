@@ -51,15 +51,7 @@ def send_verification_email(email, token):
         print(f"[ERROR] Failed to send email: {e}")
 
         
-@app.route("/debug_send_email")
-def debug_send_email():
-    test_email = "BAIRDS6@my.erau.edu"  # Replace with your actual email
-    test_token = "debug-token"
-    try:
-        send_verification_email(test_email, test_token)
-        return "✅ Email function called successfully!"
-    except Exception as e:
-        return f"❌ Error: {e}"
+
 
 # This sends emails to all pending users
 @app.route("/send_all_pending")
