@@ -9,9 +9,12 @@ app = Flask(__name__)
 
 @app.route("/register", methods=["POST"])
 def register():
+    print("[DEBUG] /register route hit")
+
     username = request.form["username"]
     email = request.form["email"]
     token = str(uuid.uuid4())
+    print(f"[DEBUG] Received username={username}, email={email}")
 
     db = get_db()
     cursor = db.cursor()
@@ -20,6 +23,7 @@ def register():
         (username, email, token)
     )
     db.commit()
+    print("[DEBUG] Inserted into database")
 
     try:
         send_verification_email(email, token)
@@ -27,6 +31,7 @@ def register():
         print(f"[ERROR] Failed to send email during registration: {e}")
 
     return "✅ Registered and verification email sent!"
+
 
 
 # Connect to your Apex hosted MySQL database
