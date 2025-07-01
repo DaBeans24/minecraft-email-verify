@@ -7,10 +7,13 @@ from config import DATABASE_CONFIG, EMAIL_CONFIG, BASE_URL
 
 app = Flask(__name__)
 
-@app.route("/register", methods=["POST"])
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    print("[DEBUG] /register route hit")
+    if request.method == "GET":
+        return render_template("register.html")  # Show the form
 
+    # POST = form submitted
+    print("[DEBUG] /register route hit")
     username = request.form["username"]
     email = request.form["email"]
     token = str(uuid.uuid4())
