@@ -4,7 +4,7 @@ import smtplib
 import uuid
 from email.message import EmailMessage
 from config import DATABASE_CONFIG, EMAIL_CONFIG, BASE_URL
-return redirect(url_for("success_page"))
+
 
 app = Flask(__name__)
 
@@ -13,12 +13,10 @@ def register():
     if request.method == "GET":
         return render_template("register.html")  # Show the form
 
-    # POST = form submitted
-    print("[DEBUG] /register route hit")
+    # POST request
     username = request.form["username"]
     email = request.form["email"]
     token = str(uuid.uuid4())
-    print(f"[DEBUG] Received username={username}, email={email}")
 
     db = get_db()
     cursor = db.cursor()
@@ -27,14 +25,14 @@ def register():
         (username, email, token)
     )
     db.commit()
-    print("[DEBUG] Inserted into database")
 
     try:
-        send_verification_email(email, token)
+        send_verification_email(email, token, username)
     except Exception as e:
         print(f"[ERROR] Failed to send email during registration: {e}")
 
-    return "✅ Registered and verification email sent!"
+    return redirect(url_for("success_page"))  # ✅ MUST be indented inside the function
+
 
 
 
