@@ -32,18 +32,33 @@ def get_db():
 # Email sender using Gmail SMTP
 def send_verification_email(email, token):
     link = f"{BASE_URL}/verify?token={token}"
-
+    print(f"[DEBUG] Sending email to: {email}")
+    print(f"[DEBUG] Verification link: {link}")
+    
     msg = EmailMessage()
     msg["Subject"] = "Verify Your Minecraft Account"
     msg["From"] = EMAIL_CONFIG["email"]
     msg["To"] = email
     msg.set_content(f"Hi there!\n\nClick this link to verify your account:\n{link}\n\nThanks!")
 
-    with smtplib.SMTP(EMAIL_CONFIG["smtp_server"], EMAIL_CONFIG["smtp_port"]) as server:
-        server.starttls()
-        server.login(EMAIL_CONFIG["email"], EMAIL_CONFIG["password"])
-        server.send_message(msg)
-
+     try:
+        with smtplib.SMTP(EMAIL_CONFIG["smtp_server"], EMAIL_CONFIG["smtp_port"]) as server:
+            server.starttls()
+            server.login(EMAIL_CONFIG["email"], EMAIL_CONFIG["password"])
+            server.send_message(msg)
+        print("[DEBUG] Email sent successfully!")
+    except Exception as e:
+        print(f"[ERROR] Failed to send email: {e}")
+        
+@app.route("/debug_send_email")
+def debug_send_email():
+    test_email = "your-email@example.com"  # Replace with your actual email
+    test_token = "debug-token"
+    try:
+        send_verification_email(test_email, test_token)
+        return "✅ Email function called successfully!"
+    except Exception as e:
+        return f"❌ Error: {e}"
 
 # This sends emails to all pending users
 @app.route("/send_all_pending")
