@@ -53,7 +53,7 @@ def send_verification_email(email, token):
         
 @app.route("/debug_send_email")
 def debug_send_email():
-    test_email = "your-email@example.com"  # Replace with your actual email
+    test_email = "BAIRDS6@my.erau.edu"  # Replace with your actual email
     test_token = "debug-token"
     try:
         send_verification_email(test_email, test_token)
