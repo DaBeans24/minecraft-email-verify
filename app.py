@@ -25,7 +25,7 @@ def register():
 
     return "✅ Registered and verification email sent!"
 
-# Connect to your Apex-hosted MySQL database
+# Connect to your Apex hosted MySQL database
 def get_db():
     return mysql.connector.connect(**DATABASE_CONFIG)
 
