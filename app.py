@@ -41,7 +41,7 @@ def send_verification_email(email, token):
     msg["To"] = email
     msg.set_content(f"Hi there!\n\nClick this link to verify your account:\n{link}\n\nThanks!")
 
-     try:
+    try:
         with smtplib.SMTP(EMAIL_CONFIG["smtp_server"], EMAIL_CONFIG["smtp_port"]) as server:
             server.starttls()
             server.login(EMAIL_CONFIG["email"], EMAIL_CONFIG["password"])
@@ -49,6 +49,7 @@ def send_verification_email(email, token):
         print("[DEBUG] Email sent successfully!")
     except Exception as e:
         print(f"[ERROR] Failed to send email: {e}")
+
         
 @app.route("/debug_send_email")
 def debug_send_email():
