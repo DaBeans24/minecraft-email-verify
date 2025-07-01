@@ -32,16 +32,19 @@ def send_pending():
     try:
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("SELECT uuid, email FROM players WHERE status = 'pending'")
+        cursor.execute("SELECT minecraft_username, erau_email FROM player_regristration WHERE status = 'PENDING'")
         results = cursor.fetchall()
 
         if not results:
             return "ℹ️ No pending users found."
 
-        for uuid_val, email in results:
-            print(f"📨 Sending to {email}...")
+        for username, email in results:
+            print(f"📨 Sending to {email} for {username}")
             token = str(uuid.uuid4())
-            cursor.execute("UPDATE players SET token = %s WHERE uuid = %s", (token, uuid_val))
+            cursor.execute(
+                "UPDATE player_regristration SET token = %s WHERE minecraft_username = %s",
+                (token, username)
+            )
             send_verification_email(email, token)
 
         db.commit()
@@ -50,6 +53,7 @@ def send_pending():
     except Exception as e:
         return f"❌ Error: {e}"
 
+
 # This route verifies users when they click the email link
 @app.route("/verify")
 def verify():
@@ -57,11 +61,14 @@ def verify():
 
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("SELECT uuid FROM players WHERE token = %s", (token,))
+    cursor.execute("SELECT minecraft_username FROM player_regristration WHERE token = %s", (token,))
     result = cursor.fetchone()
 
     if result:
-        cursor.execute("UPDATE players SET status = 'approved' WHERE token = %s", (token,))
+        cursor.execute(
+            "UPDATE player_regristration SET status = 'APPROVED' WHERE token = %s",
+            (token,)
+        )
         db.commit()
         return render_template("success.html")
     else:
