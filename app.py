@@ -21,9 +21,13 @@ def register():
     )
     db.commit()
 
-    send_verification_email(email, token)
+    try:
+        send_verification_email(email, token)
+    except Exception as e:
+        print(f"[ERROR] Failed to send email during registration: {e}")
 
     return "✅ Registered and verification email sent!"
+
 
 # Connect to your Apex hosted MySQL database
 def get_db():
