@@ -80,6 +80,12 @@ ERRSA's Minecraft Staff
         print(f"[ERROR] Failed to send email: {e}")
 
         
+@app.route("/test-email")
+def test_email():
+    test_email = "your-email@example.com"
+    test_token = str(uuid.uuid4())
+    send_verification_email(test_email, test_token, "TestUser")
+    return f"✅ Test email sent to {test_email}!"
 
 @app.route("/", methods=["GET"])
 def index():
