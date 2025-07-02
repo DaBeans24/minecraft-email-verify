@@ -63,7 +63,7 @@ Please click the link below to confirm ownership and grant game access:
 Or click here to DENY the request:
 {denied_link}
 
-Note: Registration may take up to a few minutes to reflect in game.
+Note: Registration may take up to a few minutes to reflect in-game.
 
 Thank you,  
 ERRSA's Minecraft Staff
@@ -101,7 +101,7 @@ def send_pending():
                 "UPDATE player_registrations SET token = %s WHERE minecraft_username = %s",
                 (token, username)
             )
-            send_verification_email(email, token)
+            send_verification_email(email, token, username)
 
         db.commit()
         return "✅ Emails sent to all pending users!"
@@ -134,22 +134,31 @@ def deny():
     else:
         return "<h1>⚠️ Invalid or expired token.</h1>"
 
+@app.route("/verify")
+def verify():
+    token = request.args.get("token")
+    print(f"[DEBUG] Received token: {token}")
 
-# Optional: Test your DB connection on Render
-@app.route("/test_db")
-def test_db():
-    try:
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute("SELECT 1")
-        return "✅ Connected to the database!"
-    except Exception as e:
-        return f"❌ Database connection failed: {e}"
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT minecraft_username FROM player_registrations WHERE token = %s", (token,))
+    result = cursor.fetchone()
+
+    if result:
+        cursor.execute(
+            "UPDATE player_registrations SET status = 'APPROVED' WHERE token = %s",
+            (token,)
+        )
+        db.commit()
+        print(f"[DEBUG] Token verified for user: {result[0]}")
+        return render_template("success.html")
+    else:
+        print("[DEBUG] Invalid or expired token")
+        return "❌ Invalid or expired verification token."
+
 
 @app.route("/success")
 def success_page():
     return render_template("success.html")
 
-if __name__ == "__main__":
-    app.run(debug=True)
 
