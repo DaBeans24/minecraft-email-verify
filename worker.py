@@ -1,9 +1,11 @@
 import time
 import requests
 
+URL = "https://minecraft-email-verify.onrender.com/send_all_pending"
+
 while True:
     try:
-        r = requests.get("https://minecraft-email-verify.onrender.com/send_all_pending")
+        r = requests.get(URL)
         print(f"Pinged /send_all_pending: {r.text}")
     except Exception as e:
         print(f"[ERROR] {e}")
