@@ -81,6 +81,9 @@ ERRSA's Minecraft Staff
 
         
 
+@app.route("/", methods=["GET"])
+def index():
+    return "✅ Server is up!"
 
 # This sends emails to all pending users
 @app.route("/send_all_pending")
