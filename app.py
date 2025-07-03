@@ -2,6 +2,8 @@ from flask import Flask, request, render_template, redirect, url_for
 import mysql.connector
 import smtplib
 import uuid
+import os
+import requests
 from email.message import EmailMessage
 from config import DATABASE_CONFIG, EMAIL_CONFIG, BASE_URL
 
@@ -48,14 +50,17 @@ def send_verification_email(email, token, username):
     print(f"[DEBUG] Verification link: {link}")
     print(f"[DEBUG] Denied link: {denied_link}")
 
-    msg = EmailMessage()
-    msg["Subject"] = "Verify Your Minecraft Account"
-    msg["From"] = EMAIL_CONFIG["email"]
-    msg["To"] = email
-    msg.set_content(
-        f"""Hello {email},
+    data = {
+        "personalizations": [{
+            "to": [{"email": email}],
+            "subject": "Verify Your Minecraft Account"
+        }],
+        "from": {"email": "minecraft@yourdomain.com"},  # Replace or verify in SendGrid
+        "content": [{
+            "type": "text/plain",
+            "value": f"""Hello {email},
 
-We received a request to link the Minecraft account '{username}' to this email address ({email}).
+We received a request to link the Minecraft account '{username}' to this email address.
 
 Please click the link below to confirm ownership and grant game access:
 {link}
@@ -65,21 +70,25 @@ Or click here to DENY the request:
 
 Note: Registration may take up to a few minutes to reflect in-game.
 
-Thank you,  
+Thank you,
 ERRSA's Minecraft Staff
 """
-    )
+        }]
+    }
 
-    try:
-        with smtplib.SMTP(EMAIL_CONFIG["smtp_server"], EMAIL_CONFIG["smtp_port"]) as server:
-            server.starttls()
-            server.login(EMAIL_CONFIG["email"], EMAIL_CONFIG["password"])
-            server.send_message(msg)
-        print("[DEBUG] Email sent successfully!")
-    except Exception as e:
-        print(f"[ERROR] Failed to send email: {e}")
+    headers = {
+        "Authorization": f"Bearer {os.getenv('SENDGRID_API_KEY')}",
+        "Content-Type": "application/json"
+    }
 
-        
+    response = requests.post("https://api.sendgrid.com/v3/mail/send", json=data, headers=headers)
+
+    if response.status_code >= 200 and response.status_code < 300:
+        print("[DEBUG] Email sent via SendGrid API")
+    else:
+        print(f"[ERROR] SendGrid API failed: {response.status_code} - {response.text}")
+
+
 @app.route("/test-email")
 def test_email():
     test_email = "your-email@example.com"
