@@ -7,11 +7,7 @@ DATABASE_CONFIG = {
     'database': os.getenv('DB_NAME')
 }
 
-EMAIL_CONFIG = {
-    'smtp_server': 'smtp.gmail.com',
-    'smtp_port': 587,
-    'email': os.getenv('EMAIL_ADDRESS'),
-    'password': os.getenv('EMAIL_PASSWORD')
-}
 
-BASE_URL = os.getenv('BASE_URL')  # e.g., https://your-render-app.onrender.com
+
+BASE_URL = os.getenv('BASE_URL')  # e.g., https://minecraft-email-verify.onrender.com
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')  # required for sending emails
