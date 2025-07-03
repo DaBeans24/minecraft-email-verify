@@ -5,7 +5,7 @@ import uuid
 import os
 import requests
 from email.message import EmailMessage
-from config import DATABASE_CONFIG, EMAIL_CONFIG, BASE_URL
+from config import DATABASE_CONFIG, EMAIL_CONFIG, BASE_URL, SENDGRID_API_KEY
 
 
 app = Flask(__name__)
@@ -77,7 +77,7 @@ ERRSA's Minecraft Staff
     }
 
     headers = {
-        "Authorization": f"Bearer {os.getenv('SENDGRID_API_KEY')}",
+        "Authorization": f"Bearer {SENDGRID_API_KEY}",
         "Content-Type": "application/json"
     }
 
