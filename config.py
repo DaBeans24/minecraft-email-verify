@@ -10,5 +10,5 @@ DATABASE_CONFIG = {
 
 
 BASE_URL = os.getenv('BASE_URL')  # e.g., https://minecraft-email-verify.onrender.com
-SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')  # required for sending emails
+MAILERSEND_API_KEY = os.getenv('MAILERSEND_API_KEY')  # required for sending emails
 EMAIL_SENDER = os.getenv('EMAIL_ADDRESS')  # Used in the "from" field for SendGrid
