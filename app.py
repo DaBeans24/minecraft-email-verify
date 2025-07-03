@@ -5,7 +5,7 @@ import uuid
 import os
 import requests
 from email.message import EmailMessage
-from config import DATABASE_CONFIG, EMAIL_CONFIG, BASE_URL, SENDGRID_API_KEY
+from config import DATABASE_CONFIG, BASE_URL, SENDGRID_API_KEY
 
 
 app = Flask(__name__)
