@@ -50,43 +50,33 @@ def send_verification_email(email, token, username):
     print(f"[DEBUG] Verification link: {link}")
     print(f"[DEBUG] Denied link: {denied_link}")
 
-    data = {
-        "personalizations": [{
-            "to": [{"email": email}],
-            "subject": "Verify Your Minecraft Account"
-        }],
-        "from": {"email": EMAIL_SENDER},  # Replace or verify in SendGrid
-        "content": [{
-            "type": "text/plain",
-            "value": f"""Hello {email},
-
-We received a request to link the Minecraft account '{username}' to this email address.
-
-Please click the link below to confirm ownership and grant game access:
-{link}
-
-Or click here to DENY the request:
-{denied_link}
-
-Note: Registration may take up to a few minutes to reflect in-game.
-
-Thank you,
-ERRSA's Minecraft Staff
-"""
-        }]
-    }
 
     headers = {
         "Authorization": f"Bearer {SENDGRID_API_KEY}",
         "Content-Type": "application/json"
     }
+    
+   data = {
+        "from": {
+            "email": "minecraft@your-verified-domain.com",
+            "name": "ERRSA Minecraft"
+        },
+        "to": [{"email": email}],
+        "subject": "Verify Your Minecraft Account",
+        "text": f"""Hello {username},
 
-    response = requests.post("https://api.sendgrid.com/v3/mail/send", json=data, headers=headers)
+You requested to link your Minecraft account.
 
-    if response.status_code >= 200 and response.status_code < 300:
-        print("[DEBUG] Email sent via SendGrid API")
-    else:
-        print(f"[ERROR] SendGrid API failed: {response.status_code} - {response.text}")
+✅ Confirm: {link}  
+❌ Deny: {denied_link}
+
+Thanks,  
+ERRSA Minecraft Staff"""
+    }
+
+    response = requests.post("https://api.mailersend.com/v1/email", json=data, headers=headers)
+    print(f"[DEBUG] MailerSend response: {response.status_code}")
+    print(response.text)
 
 
 @app.route("/test-email")
