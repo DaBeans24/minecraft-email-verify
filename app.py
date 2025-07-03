@@ -46,19 +46,15 @@ def get_db():
 def send_verification_email(email, token, username):
     link = f"{BASE_URL}/verify?token={token}"
     denied_link = f"{BASE_URL}/deny?token={token}"
-    print(f"[DEBUG] Sending email to: {email}")
-    print(f"[DEBUG] Verification link: {link}")
-    print(f"[DEBUG] Denied link: {denied_link}")
-
 
     headers = {
-        "Authorization": f"Bearer {SENDGRID_API_KEY}",
+        "Authorization": f"Bearer {os.getenv('MAILERSEND_API_KEY')}",
         "Content-Type": "application/json"
     }
-    
-   data = {
+
+    data = {
         "from": {
-            "email": "minecraft@your-verified-domain.com",
+            "email": os.getenv('EMAIL_ADDRESS'),  # Make sure this matches your verified sender
             "name": "ERRSA Minecraft"
         },
         "to": [{"email": email}],
@@ -67,7 +63,7 @@ def send_verification_email(email, token, username):
 
 You requested to link your Minecraft account.
 
-✅ Confirm: {link}  
+✅ Confirm: {link}
 ❌ Deny: {denied_link}
 
 Thanks,  
@@ -77,7 +73,6 @@ ERRSA Minecraft Staff"""
     response = requests.post("https://api.mailersend.com/v1/email", json=data, headers=headers)
     print(f"[DEBUG] MailerSend response: {response.status_code}")
     print(response.text)
-
 
 @app.route("/test-email")
 def test_email():
