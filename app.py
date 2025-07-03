@@ -5,7 +5,7 @@ import uuid
 import os
 import requests
 from email.message import EmailMessage
-from config import DATABASE_CONFIG, BASE_URL, SENDGRID_API_KEY
+from config import DATABASE_CONFIG, BASE_URL, SENDGRID_API_KEY, EMAIL_SENDER
 
 
 app = Flask(__name__)
@@ -55,7 +55,7 @@ def send_verification_email(email, token, username):
             "to": [{"email": email}],
             "subject": "Verify Your Minecraft Account"
         }],
-        "from": {"email": "minecraft@yourdomain.com"},  # Replace or verify in SendGrid
+        "from": {"email": EMAIL_SENDER},  # Replace or verify in SendGrid
         "content": [{
             "type": "text/plain",
             "value": f"""Hello {email},
