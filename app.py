@@ -54,7 +54,7 @@ def send_verification_email(email, token, username):
 
     data = {
         "from": {
-            "email": os.getenv('EMAIL_ADDRESS'),  # Make sure this matches your verified sender
+            "email": os.getenv('EMAIL_SENDER'),  # Make sure this matches your verified sender
             "name": "ERRSA Minecraft"
         },
         "to": [{"email": email}],
