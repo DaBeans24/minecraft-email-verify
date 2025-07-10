@@ -112,6 +112,44 @@ def send_pending():
     except Exception as e:
         return f"❌ Error: {e}"
 
+@app.route("/verify_user", methods=["GET"])
+def verify_user():
+    # Simulate CampusGroups login data
+    campus_email = request.args.get("email")  # Replace with real login identity in prod
+    username = request.args.get("username")   # Minecraft username to verify
+
+    # Check if there is a pending registration
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT status FROM player_registrations WHERE minecraft_username = %s AND erau_email = %s", (username, campus_email))
+    result = cursor.fetchone()
+
+    if not result:
+        return "❌ No pending registration found for this user/email."
+
+    status = result[0]
+    if status != "PENDING":
+        return f"⚠️ This registration is already {status}."
+
+    return render_template("verify_user.html", username=username, email=campus_email)
+@app.route("/process_verification", methods=["POST"])
+def process_verification():
+    username = request.form["username"]
+    email = request.form["email"]
+    action = request.form["action"]  # Either "APPROVED" or "DENIED"
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "UPDATE player_registrations SET status = %s WHERE minecraft_username = %s AND erau_email = %s",
+        (action, username, email)
+    )
+    db.commit()
+
+    return f"✅ Verification status updated to <strong>{action}</strong> for {username}."
+
+
+
 @app.route("/deny")
 def deny():
     token = request.args.get("token")
