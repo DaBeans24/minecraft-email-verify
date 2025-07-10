@@ -1,0 +1,10 @@
+<h1>🧾 Minecraft Account Verification</h1>
+<p>You're logged in as <strong>{{ email }}</strong>.</p>
+<p>Do you approve the Minecraft account <strong>{{ username }}</strong>?</p>
+
+<form method="POST" action="/process_verification">
+    <input type="hidden" name="username" value="{{ username }}">
+    <input type="hidden" name="email" value="{{ email }}">
+    <button type="submit" name="action" value="APPROVED">✅ Approve</button>
+    <button type="submit" name="action" value="DENIED">❌ Deny</button>
+</form>
